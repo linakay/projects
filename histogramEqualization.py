@@ -4,7 +4,7 @@
 # normalizing the cumulative distribution function of the original image. The new
 # image will contain more gray values at the dark and light ends of the spectrum.
 # Type 'python3 thisfile.py /path/filename.pgm' at the terminal or change the
-# pgm variable on ln 59 to '/path/filename.pgm' in a Python console to test.
+# pgm variable on ln 62 to '/path/filename.pgm' in a Python console to test.
 
 import sys, re
 from math import ceil
@@ -27,7 +27,7 @@ def cdf_norm(pixels):
         cdf = [sum(pixel_counts[:i]) for i in range(1,len(pixel_counts)+1)]
         N = max(cdf)-min(cdf)
         # Normalizes the CDF by dividing each value by the range of values
-        norm = [round(((x-pmin)*pmax)/N) for x in cdf]
+        norm = [round(((x-min(cdf))*pmax)/N) for x in cdf]
         # Uses the normalized CDF as an index to adjust pixel gray values
         normalized = [norm[n] for n in pixels]
     # Employs pixel stretching if range is too small for CDF normalization
@@ -36,7 +36,7 @@ def cdf_norm(pixels):
     output = [str(n) for n in normalized]
     output_file = f'{fname}_new.pgm'
     with open(output_file,'w') as target:
-        img = f'P2\n{x_dim} {y_dim}\n{pmax}\n'
+        img = f'P2\n{x_dim} {y_dim}\n{max(normalized)}\n'
         img += '\n'.join(output)
         target.write(img)
         target.close()
