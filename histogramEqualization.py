@@ -18,44 +18,30 @@ def count_pixels(pixels):
 
 # Uses the cumulative distribution function (CDF) to increase image contrast
 def cdf_norm(pixels):
-    x_dim, y_dim = int(pixels[0]), int(pixels[1])
-    pixels = pixels[3:]
-    pmin, pmax, rng = min(pixels), max(pixels), max(pixels)-min(pixels)
-    if rng > 60:
-        pixel_counts = count_pixels(pixels)
-        # Calculates the cumulative distribution at each gray level
-        cdf = [sum(pixel_counts[:i]) for i in range(1,len(pixel_counts)+1)]
-        N = max(cdf)-min(cdf)
-        # Normalizes the CDF by dividing each value by the range of values
-        norm = [round(((x-min(cdf))*pmax)/N) for x in cdf]
-        # Uses the normalized CDF as an index to adjust pixel gray values
-        normalized = [norm[n] for n in pixels]
-    # Employs pixel stretching if range is too small for CDF normalization
-    else:
-        normalized = [round(((x-pmin)/(rng))*255) for x in pixels]
-    output = [str(n) for n in normalized]
-    output_file = f'{fname}_new.pgm'
-    with open(output_file,'w') as target:
-        img = f'P2\n{x_dim} {y_dim}\n{max(normalized)}\n'
-        img += '\n'.join(output)
-        target.write(img)
-        target.close()
+    pixel_counts = count_pixels(pixels)
+    # Calculates the cumulative distribution at each gray level
+    cdf = [sum(pixel_counts[:i]) for i in range(1,len(pixel_counts)+1)]
+    N = max(cdf)-min(cdf)
+    # Normalizes the CDF by dividing each value by the range of values
+    norm = [round(((x-min(cdf))*max(pixels))/N) for x in cdf]
+    # Uses the normalized CDF as an index to adjust pixel gray values
+    normalized = [norm[n] for n in pixels]
     return normalized
 
-# Calculates totals and scales data for a 16-bin printable histogram
-def hgram(pixel_counts, fname):
-    pmax = len(pixel_counts)
-    width = round(pmax/16)
-    bin_cts = [sum(pixel_counts[i:i+width]) for i in range(0, pmax, width)]
-    tot = [f'({x:,})' for x in bin_cts]
-    bins = [f'[{i}-{min(i+width-1, pmax-1)}]\t'.expandtabs(10) for i in range(0, pmax, width)]
-    plt = ['█'*ceil(70*(n/max(bin_cts))) for n in bin_cts]
-    hist = "\n".join('{}{}{}'.format(x,y,z) for x,y,z in zip(bins,plt,tot))
+# Rescales data to generate a 16-bin printable histogram
+def hgram(pixels, fname):
+    pmin, pmax, width = min(pixels), max(pixels), ceil((max(pixels)-min(pixels))/16)
+    pixel_counts = count_pixels(pixels)
+    counts = {i:pixel_counts[i] for i in range(min(pixels), max(pixels)+1)}
+    bins = {f'{i}-{min(pmax, i+width-1)}':sum(counts[i] for i in range(i, min(i+width, pmax+1))) for i in range(pmin, pmax+1, width)}
+    plt = [f"[{k}]\t{round(bins[k]*70/max(bins.values()))*'█'}".expandtabs(10)+f'({bins[k]:,})' for k in bins]
+    bars = '\n'.join(plt)
     title = f'Histogram - {fname}\n'
     tablen = max(round((90-len(title))/2), 0)
     title = f'\t{title}'.expandtabs(tablen)
     legend = 'Values \t Bin Counts\n'.expandtabs(39)
-    hist = f'{title}{legend}{hist}\n'
+    hist = f'{title}{legend}{bars}\n'
+    print(hist)
     return hist
 
 try:
@@ -66,9 +52,9 @@ try:
         content.close()
     parts = [int(n) for n in parts[1:] if n]
     pixels = parts[3:]
-    print(hgram(count_pixels(pixels), f'Pixel Intensity Values: {fname}'))
-    print(hgram(count_pixels(cdf_norm(parts)), f'Modified {fname}'))
+    hgram(pixels, f'Pixel Intensity Values: {fname}')
+    hgram(cdf_norm(pixels), f'Modified {fname}')
 
 except Exception:
     print(f'''Please enter a valid pgm file path as an argument. For example:
-    python3 {sys.argv[0]} /path/filename.pgm''')
+    python3 {sys.argv[0]} /path/file.pgm''')
