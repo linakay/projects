@@ -103,4 +103,4 @@ try:
 
 except Exception:
     print(f'''Please enter a valid pgm file path as an argument. For example:
-    python3 {sys.argv[0]} /users/abrick/resources/maquinna.pgm''')
+    python3 {sys.argv[0]} /path/filename.pgm''')
