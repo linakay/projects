@@ -5,7 +5,6 @@ def readpgm(pgm):
         parts = re.split(r'\s+',re.sub(r'#.*',r'\n',content.read()))
         content.close()
     parts = [int(n) for n in parts[1:] if n]
-    pixels = parts[3:]
     content.close()
     return parts
 
