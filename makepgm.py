@@ -13,6 +13,7 @@ def writepgm(pixels, x, y, fname):
     pixel_str = [str(p) for p in pixels]
     new_pixels = '\n'.join(pixel_str)
     header = f'P2\n{x} {y}\n{max(pixels)}\n'
-    with open('newpgm.pgm', 'w') as new_image:
+    fname += '_new.pgm'
+    with open(fname, 'w') as new_image:
         new_image.write(header+new_pixels)
         new_image.close()
