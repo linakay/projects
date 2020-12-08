@@ -5,7 +5,7 @@
 # normalizing the cumulative distribution function of the original image. The new
 # image will contain more gray values at the dark and light ends of the spectrum.
 # Type 'python3 thisfile.py /path/filename.pgm' at the terminal or change the
-# pgm variable on ln 82 to '/path/filename.pgm' in a Python console to test.
+# pgm variable on ln 74 to '/path/filename.pgm' in a Python console to test.
 
 import re, sys, makepgm
 from math import ceil
