@@ -72,11 +72,8 @@ def hgram(bins, labels, fname):
 
 try:
     pgm = sys.argv[1]
-    with open(pgm) as content:
-        parts = re.split(r'\s+',re.sub(r'#.*',r'\n',content.read()))
-        fname = pgm[:len(pgm)-4].split('/')[-1]
-        content.close()
-    parts = [int(n) for n in parts[1:] if n]
+    fname = pgm[:len(pgm)-4].split('/')[-1]
+    parts = makepgm.readpgm(pgm)
     pixels = parts[3:]
     pixel_counts = count_pixels(pixels)
     bins = make_bins(pixel_counts, min(pixels), max(pixels))[1]
