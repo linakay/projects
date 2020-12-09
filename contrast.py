@@ -19,26 +19,10 @@ def count_pixels(pixels):
         pixel_counts[n] += 1
     return pixel_counts
 
-# Calculate negative (and positive) square roots without errors
-def root(x):
-    if x >= 0:
-        return x**(1/2)
-    else:
-        return -(-x)**(1/2)
-
 # Convert values between 0 and 1
 def normalize(vals):
     mx, mn = max(vals), min(vals)
     return [(x - mn)/(mx - mn) for x in vals]
-
-# Make gray values between -1 and 1 & take the square root
-def sqrt_contrast(pixels):
-    normalized = normalize(pixels)
-    betweenones = [2*x - 1 for x in normalized]
-    roots = [root(x) for x in betweenones]
-    norm_roots = normalize(roots)
-    mx = max(pixels)
-    return [round(mx*x) for x in norm_roots]
 
 # Uses the cumulative distribution function (CDF) to increase image contrast
 def cdf_norm(pixels):
@@ -59,11 +43,11 @@ def make_bins(pixel_counts, mn, mx):
 # Now display histograms for the original and enhanced images
 def hgram(bins, labels, fname):
     bmx = max(bins)
-    bars = [f"{round(x*70/bmx)*'█'}"+f'({x:,})' for x in bins]
+    bars = [f"{(x*70 // bmx)*'█'}"+f'({x:,})' for x in bins]
     plt = [f'[{labels[i]}]\t{bars[i]}'.expandtabs(10) for i in range(len(bars))]
     plt = '\n'.join(plt)
     title = f'Histogram - {fname}\n'
-    tablen = max(round((90-len(title))/2), 0)
+    tablen = max((90-len(title)) // 2, 0)
     title = f'\t{title}'.expandtabs(tablen)
     legend = 'Values \t Bin Counts\n'.expandtabs(39)
     hist = f'{title}{legend}{plt}\n'
@@ -78,10 +62,7 @@ try:
     pixel_counts = count_pixels(pixels)
     bins = make_bins(pixel_counts, min(pixels), max(pixels))[1]
     labels = make_bins(pixel_counts, min(pixels), max(pixels))[0]
-    if len(set(pixel_counts)) < 10 or mean(bins)>(5*stdev(bins)):
-        new_pixels = sqrt_contrast(pixels)
-    else:
-        new_pixels = cdf_norm(pixels)
+    new_pixels = cdf_norm(pixels)
     new_bins = make_bins(count_pixels(new_pixels), min(new_pixels), max(new_pixels))[1]
     new_labels = make_bins(count_pixels(new_pixels), min(new_pixels), max(new_pixels))[0]
     hgram(bins, labels, f'Pixel Intensity Values: {fname}')
